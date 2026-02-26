@@ -23,6 +23,7 @@ public struct TappableMapView: UIViewRepresentable {
     public let annotations: [TappableAnnotation]
     public let configuration: MapConfiguration
     public let onPolygonTapped: ((TappablePolygon) -> Void)?
+    public let onPolygonTappedAt: ((TappablePolygon, CGPoint) -> Void)?
 
     /// Create a tappable map view.
     ///
@@ -31,16 +32,19 @@ public struct TappableMapView: UIViewRepresentable {
     ///   - annotations: Optional point annotations.
     ///   - configuration: Map display and interaction settings.
     ///   - onPolygonTapped: Callback fired when the user taps inside a polygon.
+    ///   - onPolygonTappedAt: Callback fired with the polygon and tap point in the view's coordinate space.
     public init(
         polygons: [TappablePolygon],
         annotations: [TappableAnnotation] = [],
         configuration: MapConfiguration = MapConfiguration(),
-        onPolygonTapped: ((TappablePolygon) -> Void)? = nil
+        onPolygonTapped: ((TappablePolygon) -> Void)? = nil,
+        onPolygonTappedAt: ((TappablePolygon, CGPoint) -> Void)? = nil
     ) {
         self.polygons = polygons
         self.annotations = annotations
         self.configuration = configuration
         self.onPolygonTapped = onPolygonTapped
+        self.onPolygonTappedAt = onPolygonTappedAt
     }
 
     public func makeCoordinator() -> Coordinator {
@@ -159,6 +163,7 @@ public struct TappableMapView: UIViewRepresentable {
                         let rendererPoint = polygonRenderer.point(for: mapPoint)
                         if polygonRenderer.path?.contains(rendererPoint) == true {
                             parent.onPolygonTapped?(tappable)
+                            parent.onPolygonTappedAt?(tappable, point)
                             return
                         }
                     }
@@ -167,6 +172,7 @@ public struct TappableMapView: UIViewRepresentable {
                         let rendererPoint = multiRenderer.point(for: mapPoint)
                         if multiRenderer.path?.contains(rendererPoint) == true {
                             parent.onPolygonTapped?(tappable)
+                            parent.onPolygonTappedAt?(tappable, point)
                             return
                         }
                     }
